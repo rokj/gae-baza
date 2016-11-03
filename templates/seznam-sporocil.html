@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block glavna_vsebina %}
+<br />
+<br />
+
+<div>
+    <table class="table">
+        {% for s in seznam %}
+            <tr>
+                <td>{{ s.key.id() }}</td>
+                <td>{% if s.avtor %}{{ s.avtor }}{% endif %}</td>
+                <td><a href="/sporocilo/{{ s.key.id() }}/">{{ s.vnos }}</a></td>
+                <td>{%if s.nastanek %}{{ s.nastanek }}{% endif %}</td>
+            </tr>
+        {% endfor %}
+    </table>
+</div>
+
+<br />
+<br />
+
+{% endblock glavna_vsebina %}
+

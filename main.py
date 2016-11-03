@@ -4,6 +4,7 @@ import jinja2
 import webapp2
 from models import Sporocilo
 
+from datetime import datetime
 
 template_dir = os.path.join(os.path.dirname(__file__), "templates")
 jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir), autoescape=False)
@@ -50,11 +51,16 @@ class SporociloHandler(BaseHandler):
 
     def post(self):
         vnos = self.request.get('vnos')
+        avtor = self.request.get('avtor')
+        nastanek = self.request.get('nastanek')
+
+        # nastanek = datetime.strptime('2011-11-11 12:12', '%Y-%m-%d %H:%M')
+
         # s tem smo dobili iz htmlja iz
         # input boxa, ki mu je bilo ime "vnos", tisto sporocilo
 
         # shrani podatke v bazo
-        sporocilo = Sporocilo(vnos=vnos) # to se ustvari objekt
+        sporocilo = Sporocilo(vnos=vnos, avtor=avtor)# , nastanek=nastanek) # to se ustvari objekt
         sporocilo.put() # s tem shranimo ta objekt v bazo
 
         return self.write("Uspesno si vnesel sporocilo.")
@@ -69,12 +75,33 @@ class SporocilaHandler(BaseHandler):
         params = {}
         return self.render_template("sporocila.html", params=params)
 
+class PosameznoSporociloHandler(BaseHandler):
+    def get(self, sporocilo_id):
+        sporocilo = Sporocilo.get_by_id(int(sporocilo_id))
+
+        params = {
+            "sporocilo": sporocilo
+        }
+
+        return self.render_template("posamezno-sporocilo.html", params=params)
+
+class SeznamSporocilHandler(BaseHandler):
+    def get(self):
+        seznam = Sporocilo.query().fetch()
+
+        params = {
+            "seznam": seznam
+        }
+
+        return self.render_template("seznam-sporocil.html", params=params)
 
 app = webapp2.WSGIApplication([
     webapp2.Route('/', MainHandler),
     webapp2.Route('/blog/', BlogHandler),
     webapp2.Route('/vnos-sporocila/', SporociloHandler),
     webapp2.Route('/base/', MojHandler),
-    webapp2.Route('/sporocila/', SporocilaHandler)
+    webapp2.Route('/sporocila/', SporocilaHandler),
+    webapp2.Route('/seznam-sporocil/', SeznamSporocilHandler),
+    webapp2.Route('/sporocilo/<sporocilo_id:\d+>/', PosameznoSporociloHandler)
     # webapp2.Route('/vpisi-sporocilo/', SporociloHandler)
 ], debug=True)
